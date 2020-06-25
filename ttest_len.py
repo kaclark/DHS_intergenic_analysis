@@ -1,3 +1,7 @@
+#calculates ttests on lengths of the DHS sites
+
+#DHS_#_lengths.csv generated in calculate_gc.py
+
 import pandas as pd
 from scipy import stats
 
@@ -12,6 +16,7 @@ count = []
 for entry in files:
     file_name = 'data/mm10_data/DHS_'+entry+'_lengths.csv'
     len_data = pd.read_csv(file_name)
+    #Drop DHS ids
     len_data.drop(len_data.columns[0], 1, inplace=True)
     data.append(len_data)
 

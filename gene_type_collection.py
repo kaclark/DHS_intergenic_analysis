@@ -1,3 +1,9 @@
+#Intended only for use on luria cluster. Pulls out gene types using awk upon mouse gene annoatation
+
+#all_ids.csv generated with awk filtering for $9
+
+#Exports gene_types_only.csv
+
 import pandas as pd
 
 ids = []

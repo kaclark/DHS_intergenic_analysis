@@ -1,5 +1,11 @@
+#Finds DHS sites that aren't included in intersects, ie DHS sites that are of the highest variability
+
+#analyzed_intersects.csv generated in variabilty_chart.py
+#DHSs_intergeinc_#.csv generated in UNKONWN
+
 import pandas as pd
 
+#load intersects
 intersects = pd.read_csv("data/mm10_data/analyzed_intersects.csv", header=None, index_col=False)
 
 intersect_ids = []
@@ -11,6 +17,7 @@ final_data_list = []
 
 files = ['1','2','4','8']
 
+#One hot for cell count
 rows = {
     '1': [1,0,0,0],
     '2': [0,1,0,0],
@@ -19,6 +26,7 @@ rows = {
 }
 
 for file in files:
+    #load dhs data
     DHS_data = pd.read_csv("data/mm10_data/DHSs_intergenic_" + file + ".csv", index_col=False, header=None)
 
     chromosome = []
@@ -37,11 +45,14 @@ for file in files:
     for x in range(len(chromosome)):
         all_ids.append(str(chromosome[x]) + ":" + str(start[x]) + "-" + str(end[x]))
 
+    #if id isn't in intersect, add the files one hot matrix to its id in the dict  
     for id in all_ids:
         if id not in intersect_ids:
             chart_rows[id] = rows[file]
             
+#convert the dictionary into a list of lists for dataframe conversion
 for entry in chart_rows.items():
     final_data_list.append((entry[0], entry[1][0], entry[1][1], entry[1][2], entry[1][3]))
+#export data
 df = pd.DataFrame(final_data_list)
 df.to_csv("data/mm10_data/lone_DHS_sites_chart.csv", index=False, header=False)

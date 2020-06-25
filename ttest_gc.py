@@ -1,3 +1,7 @@
+#calculates ttests on gc content of the DHS sites
+
+#DHS_#_gc.csv generated in calculate_gc.py
+
 import pandas as pd
 from scipy import stats
 
@@ -12,6 +16,7 @@ count = []
 for entry in files:
     file_name = 'data/mm10_data/DHS_'+entry+'_gc.csv'
     gc_data = pd.read_csv(file_name)
+    #Drop DHS ids
     gc_data.drop(gc_data.columns[0], 1, inplace=True)
     data.append(gc_data)
 

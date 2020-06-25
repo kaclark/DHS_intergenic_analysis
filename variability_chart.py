@@ -1,3 +1,9 @@
+#Generates one hot chart for DHS sites that are found in multiple cell counts
+
+#DHS_intersect_#.csv generated from bedtools intersect
+
+#Exports analyzed_intersects.csv
+
 import pandas as pd
 import csv
 
@@ -6,7 +12,7 @@ final_data_dict = {}
 final_data_list = []
 
 for file in files:
-    #print("Intersect from " + file)
+    #load DHS data
     name = "data/mm10_data/DHS_intersect_" + file + ".csv"
     DHS_data = pd.read_csv(name, header=None, index_col=False)
     init_chromosome = []
@@ -24,19 +30,6 @@ for file in files:
     confluency = {}
     retain = []
 
-    #drop redundant data
-    # DHS_data.drop(DHS_data.columns[5], 1, inplace=True)
-    # DHS_data.drop(DHS_data.columns[5], 1, inplace=True)
-    # DHS_data.drop(DHS_data.columns[5], 1, inplace=True)
-    # DHS_data.drop(DHS_data.columns[5], 1, inplace=True)
-
-    #0=chromosome 1=start 2=end 3=type 4=other cell presence
-    #use as DHS_data[4]
-    #DHS_data[col][row] = value in df
-    # for col in DHS_data:
-    #     print(str(col))
-        # for row in DHS_data[col]:
-        #     print(row)
     for row in DHS_data[0]:
         init_chromosome.append(row)
     for row in DHS_data[1]:
@@ -52,6 +45,7 @@ for file in files:
         return [i for i, x in enumerate(list) if x == item]
 
     ##gut anything that isn't an enchacer or intergenic
+    #The DHS sites had not been filtered for this at that point
     retain = duplicates(init_type, "Intergenic")
     for index in retain:
         chromosome.append(init_chromosome[index])
@@ -105,26 +99,9 @@ for file in files:
             elif "8cell" in placeholder and "-" not in placeholder:
                 cell[3] = 1                           
         confluency[name] = cell
-    #TODO:
-    #Export to csv
-    #print(confluency)
-    # print("Length before " + file + " " + str(len(final_data_dict)))
-    final_data_dict.update(confluency)
-    # print("Length of confluency at " + file + " " + str(len(confluency)))
-    # print("Length after " + file + " " + str(len(final_data_dict)))
-    # if file == '8':
-    #     for data in confluency:
-    #         if data in final_data_dict:
-    #             print(data)
 
-# for x in range(len(final_data_dict)):
-#     line = []
-#     line.append(final_data_dict.keys())
-#     for key in final_data_dict.keys(): 
-#         for x in range(3):
-#             line.append(final_data_dict[key][x])
-#     final_data_list.append(line)
-# print(final_data_list)
+    final_data_dict.update(confluency)
+
 for entry in final_data_dict.items():
     final_data_list.append((entry[0], entry[1][0], entry[1][1], entry[1][2], entry[1][3]))
 df = pd.DataFrame(final_data_list)
