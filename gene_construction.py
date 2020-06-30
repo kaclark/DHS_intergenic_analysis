@@ -1,3 +1,5 @@
+#OUTDATED
+
 #Splices exons from genes together to construct a region approximating a gene
 #Tracks process time
 

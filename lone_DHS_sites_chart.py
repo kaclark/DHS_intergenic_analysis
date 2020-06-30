@@ -27,6 +27,7 @@ rows = {
 
 for file in files:
     #load dhs data
+    #TODO: Update before use
     DHS_data = pd.read_csv("data/mm10_data/DHSs_intergenic_" + file + ".csv", index_col=False, header=None)
 
     chromosome = []
@@ -55,4 +56,4 @@ for entry in chart_rows.items():
     final_data_list.append((entry[0], entry[1][0], entry[1][1], entry[1][2], entry[1][3]))
 #export data
 df = pd.DataFrame(final_data_list)
-df.to_csv("data/mm10_data/lone_DHS_sites_chart.csv", index=False, header=False)
+df.to_csv("data/mm10_data/intersects/lone_DHS_sites_chart.csv", index=False, header=False)
