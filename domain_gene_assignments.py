@@ -8,6 +8,7 @@
 import pandas as pd 
 import matplotlib.pyplot as plt
 import csv
+import numpy as np
 
 printed = False
 def duplicates(list, item):
@@ -26,8 +27,8 @@ gene_start = []
 gene_end = []
 #load gene data
 #TODO: Find where this is before rerunning
-csv_file = "data/mm10_data/full_genes/full_genes.csv"
-gene_data_df = pd.read_csv(csv_file, header=None, index_col=False)
+genes_npy = np.load("data/mm10_data/full_genes/full_genes.npy", allow_pickle=True)
+gene_data_df = pd.DataFrame(genes_npy)
 for row in gene_data_df[1]:
     gene_chromosomes.append(row)
 for row in gene_data_df[2]:
@@ -36,36 +37,55 @@ for row in gene_data_df[3]:
     gene_end.append(row)
 for x in range(len(gene_chromosomes)):
     gene_data.append([gene_chromosomes[x], gene_start[x], gene_end[x], str(gene_chromosomes[x]) + ":" + str(gene_start[x]) + "-" + str(gene_end[x])])
+uq_chroms = set(gene_chromosomes)
 print("gene data loaded")
 
 files = ['1','2','4','8']
 for file in files:
     print(file + " cell started")
-    #TODO: Load domain data by line, split by comma, extra the first element
-    #TODO: Generate domain list by extracting features from aforementioned first element
-    #TODO: Count how many genes are in TAD and format as DHS: number of genes
+    domains = []
+    path = "data/mm10_data/domains/domains_with_DHSs_" + file + ".csv"
+    with open(path) as domain_DHSs:
+        #split file into lines
+        lis = [line.split() for line in domain_DHSs] 
+        for bulk in lis:
+            DHS_list = []
+            domain_id = None
+            #Scope of the TAD data from the dhs data
+            for domain_data in bulk:
+                DHSs = []
+                domain_data = domain_data.split(',')
+                domain = domain_data[0]
+                pre_chr = domain.split(':')
+                chr = pre_chr[0]
+                pre_loc = pre_chr[1]
+                pre_start = pre_loc.split('-')
+                start = pre_start[0]
+                end = pre_start[1]
+                domains.append([chr, start, end, domain])
+        
     #Iterate through chromosomes
-    for chrom in uq_chrom:
+    for chrom in uq_chroms:
         chrom_domains = []
         chrom_genes = []
         #populate the domains for this chromosome
-        for domain_data in domain_groups:
-            if domain_data[0] == chrom:
-                chrom_domains.append(domain_data)
+        for domain in domains:
+            if domain[0] == chrom:
+                chrom_domains.append(domain)
         #populate the gene sites for this chromosome
-        for gene_data in gene_data:
-            if gene_data[0] == chrom:
-                chrom_genes.append(gene_data)
+        for gene in gene_data:
+            if gene[0] == chrom:
+                chrom_genes.append(gene)
         #For each domain, assign it to the gene site if the gene site is within the domain bounds
         for domain in chrom_domains:
             gene_in_domain = []
-            local_domain_list = [domain[3]]
+            local_gene_list = [domain[3]]
             for gene in chrom_genes:
                 if int(domain[1]) < int(gene[1]) and int(gene[2]) < int(domain[2]):
                     gene_in_domain.append(gene[3])
-            local_domain_list.extend(gene_in_domain)
+            local_gene_list.extend(gene_in_domain)
             if len(gene_in_domain) > 0:
-                domains.append(local_domain_list)
+                domains.append(local_gene_list)
     print("genes grouped")
     #Export data
     domain_annotated_df = pd.DataFrame(domains)
