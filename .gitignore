@@ -8,3 +8,4 @@
 *.gz
 *.gff3
 *.png
+*.npy
