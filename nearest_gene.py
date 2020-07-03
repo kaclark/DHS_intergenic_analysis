@@ -18,11 +18,14 @@ for file in files:
     domains_with_genes = {}
     DHSs_with_domains = {}
     DHS_and_distance = []
+    DHSs = []
     #path = "data/DHS_" + file + "_cell_with_domain.csv"
     #domain data doesn't have uniform columns
+    printed = False
     path = "data/mm10_data/domains/domains_with_genes_" + file + ".csv"
     with open(path) as domain_genes:
         #split file into lines
+        genes = []
         lis = [line.split() for line in domain_genes] 
         for bulk in lis:
             domain = None
@@ -31,30 +34,29 @@ for file in files:
             #These features are being loaded from that format
             for domain_data in bulk:
                 gene_list = []
-                genes = []
                 domain_data = domain_data.split(',')
                 #First element is domain id
                 domain = domain_data[0]
                 #All remaining elements are genes or empty space
-                domain_removed = domain_data[1:]
+                domain_removed = domain_data[4:]
                 for element in domain_removed:
                     #filter out empty space
                     if len(element) > 0:
                         genes.append(element)
-                #Extract gene features and add to gene list
-                for gene in genes:
-                    pre_chr = gene.split(':')
-                    chr = pre_chr[0]
-                    pre_loc = pre_chr[1]
-                    pre_start = pre_loc.split('-')
-                    start = pre_start[0]
-                    end = pre_start[1]
-                    #Append gene data to list of genes
-                    gene_list.append([chr, start, end, gene])
-                #Create domain dictionary entry with genes in its scope
-                domains_with_genes[domain] = gene_list
+            #Extract gene features and add to gene list
+            for gene in genes:
+                pre_chr = gene.split(':')
+                chr = pre_chr[0]
+                pre_loc = pre_chr[1]
+                pre_start = pre_loc.split('-')
+                start = pre_start[0]
+                end = pre_start[1]
+                #Append gene data to list of genes
+                gene_list.append([chr, start, end, gene])
+        #Create domain dictionary entry with genes in its scope
+            domains_with_genes[domain] = gene_list
     printed = False
-    path = "data/mm10_data/DHS_" + file + "_cell_with_domain.csv"
+    path = "data/mm10_data/domains/domains_with_DHSs_" + file + ".csv"
     with open(path) as DHS_domains:
         #split file into lines
         lis = [line.split() for line in DHS_domains] 
@@ -66,7 +68,7 @@ for file in files:
                 DHS = []
                 data = DHS_data.split(',')
                 domain_id = data[0]
-                DHS_data = DHS_data[1:]
+                DHS_data = data[1:]
                 for element in DHS_data:
                     if len(element) > 0:
                         DHSs.append(element)
@@ -78,39 +80,41 @@ for file in files:
                 start = pre_start[0]
                 end = pre_start[1]
                 dhs_list.append([chr, start, end, dhs])
-            DHSs_with_domains[domain_id] = domain_list
+            DHSs_with_domains[domain_id] = dhs_list
 
     printed = False
     #Find the genes that the DHS site may interact with in the domain
-    for dhs in DHSs_with_domains.keys():
+    for domain in DHSs_with_domains.keys():
         genes_in_domain = []
         distances = []
         on_left = []
         on_right = []
-        for domain in DHSs_with_domains.values():
-            for gene_matrix in domains_with_genes.values():
-                for gene in gene_matrix:
-                    genes_in_domain.append(gene)
-        pre_chr = dhs.split(':')
-        pre_loc = pre_chr[1]
-        pre_start = pre_loc.split('-')
-        start = int(pre_start[0])
-        end = int(pre_start[1])
-        #Find the center of the DHS site
-        dhs_center = math.floor(( int(start) + int(end) ) / 2)
-        for gene in genes_in_domain:
-            if int(gene[2]) < dhs_center:
-                on_left.append(gene)
-            elif dhs_center < int(gene[1]):
-                on_right.append(gene)
-        for gene in on_left:
-            dis = abs(start - int(gene[2]))
-            distances.append(dis)
-        for gene in on_right:
-            dis = abs(int(gene[1]) - end)
-            distances.append(dis)
-        shortest_distance = min(distances)
-        DHS_and_distance.append([dhs, shortest_distance])
+        DHS_matrix = []
+        gene_matrix = domains_with_genes[domain]
+        for gene in gene_matrix:
+            genes_in_domain.append(gene)
+        for dhs in DHSs_with_domains.values():
+            DHS_matrix.append(dhs)
+        for dhs_row in DHS_matrix:
+            for dhs in dhs_row:
+                start = int(dhs[1])
+                end = int(dhs[2])
+                id = dhs[3]
+                #Find the center of the DHS site
+                dhs_center = math.floor(( int(start) + int(end) ) / 2)
+                for gene in genes_in_domain:
+                    if int(gene[2]) < dhs_center:
+                        on_left.append(gene)
+                    elif dhs_center < int(gene[1]):
+                        on_right.append(gene)
+                for gene in on_left:
+                    dis = abs(start - int(gene[2]))
+                    distances.append(dis)
+                for gene in on_right:
+                    dis = abs(int(gene[1]) - end)
+                    distances.append(dis)
+                shortest_distance = min(distances)
+                DHS_and_distance.append([id, shortest_distance])
 
     #Export data
     Distance_df = pd.DataFrame(DHS_and_distance)
