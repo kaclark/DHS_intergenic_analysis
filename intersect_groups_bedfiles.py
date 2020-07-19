@@ -51,11 +51,11 @@ in_1_8 = ["in_1_8"]
 in_2_4 = ["in_2_4"]
 in_2_8 = ["in_2_8"]
 in_4_8 = ["in_4_8"]
-in_1_2_4 =["in_1_2_4"] 
+in_1_2_4 =["in_1_2_4"]
 in_1_2_8 = ["in_1_2_8"]
 in_1_4_8 = ["in_1_4_8"]
 in_2_4_8 = ["in_2_4_8"]
-in_1_2_4_8 =["in_1_2_4_8"] 
+in_1_2_4_8 =["in_1_2_4_8"]
 in_1_only = ["in_1_only"]
 in_2_only = ["in_2_only"]
 in_4_only =["in_4_only"]
@@ -109,33 +109,47 @@ in_1_2_4.extend(list(in_1_2_4_set))
 in_1_2_8.extend(list(in_1_2_8_set))
 in_1_4_8.extend(list(in_1_4_8_set))
 in_2_4_8.extend(list(in_2_4_8_set))
-in_1_2_4_8.extend(list(in_1_2_4_8_set)) 
+in_1_2_4_8.extend(list(in_1_2_4_8_set))
 in_1_only.extend(list(in_1_only_set))
 in_2_only.extend(list(in_2_only_set))
 in_4_only.extend(list(in_4_only_set))
 in_8_only.extend(list(in_8_only_set))
 
-partitions = [in_1_2, in_1_4, in_1_8, in_2_4, in_2_8, in_4_8, in_1_2_4, in_1_2_8, in_1_4_8, in_2_4_8, 
-in_1_2_4_8, in_1_only, in_2_only, in_4_only, in_8_only]
-#generate dictionary with the sequences which can be accessed by DHS id
+partitions = [in_1_2, in_1_4, in_1_8, in_2_4, in_2_8, in_4_8, in_1_2_4, in_1_2_8, in_1_4_8, in_2_4_8, in_1_2_4_8, in_1_only, in_2_only, in_4_only, in_8_only]
 
-#DHS fa files
 files = ['1','2','4','8']
-seq_dict = {}
+dhs_dict = {}
+ids = []
 for entry in files:
-    #Load fasta file
-    for record in SeqIO.parse("data/mm10_data/DHSs/DHSs_" + entry + "_intergenic.fa", "fasta"):
-        seq_dict[record.id] = str(record.seq)
-
+    chrom = []
+    start = []
+    end = []
+    pre_DHS_data = pd.read_csv("data/mm10_data/DHSs/DHSs_intergenic_" + entry + ".csv", header=None, index_col=False)
+    for row in pre_DHS_data[0]:
+        chrom.append(row)
+    for row in pre_DHS_data[1]:
+        start.append(row)
+    for row in pre_DHS_data[2]:
+        end.append(row)
+    for x in range(len(chrom)):
+        ids.append(str(chrom[x]) + ":" + str(start[x]) + "-" + str(end[x]))
+DHS_ids = list(set(ids))
+for name in DHS_ids:
+    pre_all = name.split(':')
+    chro = pre_all[0]
+    pre_start_end = pre_all[1]
+    srt = pre_start_end.split('-')[0]
+    ed = pre_start_end.split('-')[1]
+    dhs_dict[name] = [chro, srt, ed]
 for set in partitions:
     if len(set) > 1:
         data = []
         name = set[0]
         for dhs in set:
             if dhs != name:
-                data.append([dhs, seq_dict[dhs]])
+                data.append([dhs_dict[dhs][0], dhs_dict[dhs][1], dhs_dict[dhs][2]])
         df = pd.DataFrame(data)
-        path = "data/mm10_data/intersects/venn_partitions/" + name + ".csv"
-        df.to_csv(path, index=False, header=False)
+        path = "data/mm10_data/intersects/venn_partitions/" + name + ".bed"
+        df.to_csv(path, sep='\t', index=False, header=False)
         print(name + " data exported to " + path)
 
