@@ -29,3 +29,4 @@ data/mm10_data/intersects/venn_partitions/proc_data/length/vim.exe.stackdump
 *.h5
 data/mm10_data/Chip_visual/H3K27ac.bw
 *.edu
+*.pickle
