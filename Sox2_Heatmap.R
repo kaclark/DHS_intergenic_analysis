@@ -4,7 +4,7 @@ library(GenomicRanges)
 
 DHSs.bed <- import("C:/Users/12283/Documents/Github/DHS_intergenic_analysis/data/mm10_data/DHSs/all_DHSs.bed", format="BED")
 
-Sox2.bw <- import("C:/Users/12283/Documents/Github/DHS_intergenic_analysis/data/mm10_data/ChIP_visual/Sox2.bw", format="BigWig")
+Sox2.bw <- import("C:/Users/12283/Documents/Github/DHS_intergenic_analysis/data/mm10_data/ChIP_visual/Sox2_2.bw", format="BigWig")
 
 DHSs.10kb <- resize(DHSs.bed, width=1, fix="center")
 DHSs.10kb.center <- resize(DHSs.10kb, width=1, fix="center")
