@@ -1,6 +1,7 @@
 import pickle
 import pandas as pd
 from scipy import stats
+import matplotlib.pyplot as plt
 
 #load DHSs by group from pickle file
 #dictionary group[group_id] = DHSs_list
@@ -39,6 +40,9 @@ for antibody in ChIP_data:
                 group_counts.append(counts[index_val])
             else:
                 group_counts.append(0)
+        for value in group_counts:
+            if value < 0:
+                print(value)
         group_data.append(group_counts)
     #print(group_data)
     #print(antibody)
@@ -59,3 +63,15 @@ for antibody in ChIP_data:
         group_data[11],
         group_data[12]
     ))
+    labels = []
+    for key in groups.keys():
+        pre_label = key.split('_')[1:]
+        if pre_label[-1] == "only":
+            pre_label.pop()
+        label = ':'.join(pre_label)
+        labels.append(label)
+    ax = plt.axes()
+    ax.set_title(antibody + " counts of Variability Groupings")
+    fig = plt.boxplot(group_data)
+    ax.set_xticklabels(labels, fontsize=8, rotation=90)
+    plt.show()
