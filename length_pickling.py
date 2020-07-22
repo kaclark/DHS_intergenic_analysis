@@ -27,7 +27,7 @@ export_data = {}
 for x in range(len(ids)):
     export_data[ids[x]] = length_list[x]
 
-with open("./data/lengths.pickle", "wb") as pickle_out:
+with open("./data/jar/lengths.pickle", "wb") as pickle_out:
     pickle.dump(export_data, pickle_out)
 
 

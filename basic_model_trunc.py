@@ -2,7 +2,7 @@
 import tensorflow as tf
 from tensorflow import keras
 from keras.models import Sequential
-from keras.layers import Dense, Flatten
+from keras.layers import Dense, Dropout
 # Helper libraries
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,8 +11,8 @@ import pickle
 import random
 
 #import dataset
-#with open('./data/DHSs_onehot.pickle', 'rb') as pickle_in
-#    onehot_data = pickle.load(pickle_in)
+with open('./data/jar/DHSs_onehot.pickle', 'rb') as pickle_in:
+    onehot_data = pickle.load(pickle_in)
 print("onehot data loaded")
 with open('./data/jar/var_chart.pickle', 'rb') as pickle_in:
     var_chart_data = pickle.load(pickle_in)
@@ -27,6 +27,9 @@ with open('./data/jar/get_group_from_dhs.pickle', 'rb') as pickle_in:
     groups_by_DHS = pickle.load(pickle_in)
 with open('./data/jar/groups_trunc.pickle', 'rb') as pickle_in:
     groups_trunc = pickle.load(pickle_in)
+with open('./data/jar/ng.pickle', 'rb') as pickle_in:
+    ng_data = pickle.load(pickle_in)
+
 
 DHSs_samples = []
 for group in groups_trunc.keys():
@@ -37,11 +40,14 @@ for group in groups_trunc.keys():
 inputs = {}
 get_DHSs = {}
 dhs_index = 0
-for dhs in gc_data.keys():
+for dhs in onehot_data.keys():
     if dhs in DHSs_samples:
         input_data = []
+        for row in onehot_data[dhs]:
+            input_data.extend(row)
         input_data.append(gc_data[dhs])
         input_data.append(length_data[dhs])
+        input_data.append(ng_data[dhs])
         inputs[dhs] = input_data
         get_DHSs[dhs_index] = dhs
         dhs_index += 1
@@ -95,10 +101,10 @@ print("Testing data formatted")
 model = Sequential()
 model.add(Dense(300, activation='tanh'))
 model.add(Dense(4))
-model.compile(optimizer='adam', loss='categorical_crossentropy',metrics=['accuracy'])
+model.compile(optimizer='SGD', loss='mean_squared_error',metrics=['accuracy'])
 print("Model configured")
 
-model.fit(train_data, train_labels, epochs=10)
+model.fit(train_data, train_labels, epochs=100)
 
 test_loss, test_acc = model.evaluate(test_data,  test_labels, verbose=2)
 
@@ -107,7 +113,8 @@ print('\nTest accuracy:', test_acc)
 probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 
 predictions = probability_model.predict(test_data)
-
+print(model.summary())
+"""
 #tally up how what number of the testing data were in which group
 testing_data_group_freq = {}
 for ind in testing_indexes:
@@ -121,7 +128,7 @@ for ind in testing_indexes:
 #get percentages of testing data per group
 for group in testing_data_group_freq.keys():
     print(group + " percentage in testing data: " + str((testing_data_group_freq[group]/testing_size)*100))
-
+"""
 
 
 

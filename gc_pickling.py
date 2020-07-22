@@ -15,7 +15,7 @@ export_data = {}
 for x in range(len(ids)):
     export_data[ids[x]] = gcs[x]
 
-with open("./data/gc.pickle", "wb") as pickle_out:
+with open("./data/jar/gc.pickle", "wb") as pickle_out:
     pickle.dump(export_data, pickle_out)
 
 

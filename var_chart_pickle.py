@@ -29,7 +29,7 @@ export_data = {}
 for x in range(len(ids)):
     export_data[ids[x]] = var_list[x]
 
-with open("./data/var_chart.pickle", "wb") as pickle_out:
+with open("./data/jar/var_chart.pickle", "wb") as pickle_out:
     pickle.dump(export_data, pickle_out)
 
 

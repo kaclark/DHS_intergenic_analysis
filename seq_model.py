@@ -11,10 +11,10 @@ import pickle
 import random
 
 #import dataset
-with open('./data/DHSs_onehot.pickle', 'rb') as pickle_in:
+with open('./data/jar/DHSs_onehot.pickle', 'rb') as pickle_in:
     onehot_data = pickle.load(pickle_in)
 
-with open('./data/var_chart.pickle', 'rb') as pickle_in:
+with open('./data/jar/var_chart.pickle', 'rb') as pickle_in:
     var_chart_data = pickle.load(pickle_in)
 
 input_matched_label = {}

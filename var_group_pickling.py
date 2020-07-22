@@ -18,7 +18,7 @@ for pre_path in pathlist:
         DHSs.append(row)
     groups[name] = DHSs
 
-with open("./data/groups.pickle", "wb") as pickle_out:
+with open("./data/jar/groups.pickle", "wb") as pickle_out:
     pickle.dump(groups, pickle_out)
 
 
