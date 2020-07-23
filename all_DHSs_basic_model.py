@@ -27,7 +27,7 @@ with open('./data/jar/get_group_from_dhs.pickle', 'rb') as pickle_in:
     groups_by_DHS = pickle.load(pickle_in)
 with open('./data/jar/groups_trunc.pickle', 'rb') as pickle_in:
     groups_trunc = pickle.load(pickle_in)
-with open('./data/jar/ng.pickle', 'rb') as pickle_in:
+with open('./data/jar/ng_std.pickle', 'rb') as pickle_in:
     ng_data = pickle.load(pickle_in)
 with open('./data/jar/H3K27ac_count.pickle', 'rb') as pickle_in:
     H3K27ac_count_data = pickle.load(pickle_in)
@@ -55,17 +55,17 @@ dhs_index = 0
 for dhs in DHSs_samples:
     #if dhs in DHSs_samples:
     input_data = []
-    #for row in onehot_data[dhs]:
-    #    input_data.extend(row)
-    #input_data.append(gc_data[dhs])
-    #input_data.append(length_data[dhs])
+    for row in onehot_data[dhs]:
+        input_data.extend(row)
+    input_data.append(gc_data[dhs])
+    input_data.append(length_data[dhs])
     input_data.append(ng_data[dhs])
-    #input_data.append(H3K27ac_count_data[dhs])
-    #input_data.append(H3K4me3_count_data[dhs])
-    #input_data.append(Nanog_count_data[dhs])
-    #input_data.append(Oct4_count_data[dhs])
-    #input_data.append(Sox2_count_data[dhs])
-    #input_data.append(in_SE_data[dhs])
+    input_data.append(H3K27ac_count_data[dhs])
+    input_data.append(H3K4me3_count_data[dhs])
+    input_data.append(Nanog_count_data[dhs])
+    input_data.append(Oct4_count_data[dhs])
+    input_data.append(Sox2_count_data[dhs])
+    input_data.append(in_SE_data[dhs])
     #add new data above this
     inputs[dhs] = input_data
     get_DHSs[dhs_index] = dhs

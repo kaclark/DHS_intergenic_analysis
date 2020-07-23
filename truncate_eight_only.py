@@ -5,7 +5,7 @@ with open("./data/groups.pickle", "rb") as pickle_in:
     groups = pickle.load(pickle_in)
 
 #number of 8 only intergenic DHS sites to retain
-retain = 100
+retain = 50
 indexes = []
 tmp = []
 #number of 8 only intergenic dhs sites
