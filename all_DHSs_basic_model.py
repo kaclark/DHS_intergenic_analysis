@@ -11,7 +11,7 @@ import pickle
 import random
 import subprocess
 
-subprocess.call(["generated_shuffled_DHSs.sh"], shell=True)
+#subprocess.call(["generated_shuffled_DHSs.sh"], shell=True)
 #import dataset
 with open('./data/jar/DHSs_onehot.pickle', 'rb') as pickle_in:
     onehot_data = pickle.load(pickle_in)
@@ -42,10 +42,10 @@ with open('./data/jar/Sox2_count.pickle', 'rb') as pickle_in:
 with open('./data/jar/in_SE.pickle', 'rb') as pickle_in:
     in_SE_data = pickle.load(pickle_in)    
 
-sample_dataframe = pd.read_csv("data/mm10_data/DHSs/shuffled_DHSs.bed", header=None, index_col=False)
-DHSs_samples = []
-for row in sample_dataframe[0]:
-    DHSs_samples.append(row)
+#sample_dataframe = pd.read_csv("data/mm10_data/DHSs/shuffled_DHSs.bed", header=None, index_col=False)
+DHSs_samples = onehot_data.keys()
+#for row in sample_dataframe[0]:
+#    DHSs_samples.append(row)
 
 #flatten seq data sequence and extend list to have rest of data
 #extend lists, append single values
@@ -55,17 +55,17 @@ dhs_index = 0
 for dhs in DHSs_samples:
     #if dhs in DHSs_samples:
     input_data = []
-    for row in onehot_data[dhs]:
-        input_data.extend(row)
-    input_data.append(gc_data[dhs])
-    input_data.append(length_data[dhs])
+    #for row in onehot_data[dhs]:
+    #    input_data.extend(row)
+    #input_data.append(gc_data[dhs])
+    #input_data.append(length_data[dhs])
     input_data.append(ng_data[dhs])
-    input_data.append(H3K27ac_count_data[dhs])
-    input_data.append(H3K4me3_count_data[dhs])
-    input_data.append(Nanog_count_data[dhs])
-    input_data.append(Oct4_count_data[dhs])
-    input_data.append(Sox2_count_data[dhs])
-    input_data.append(in_SE_data[dhs])
+    #input_data.append(H3K27ac_count_data[dhs])
+    #input_data.append(H3K4me3_count_data[dhs])
+    #input_data.append(Nanog_count_data[dhs])
+    #input_data.append(Oct4_count_data[dhs])
+    #input_data.append(Sox2_count_data[dhs])
+    #input_data.append(in_SE_data[dhs])
     #add new data above this
     inputs[dhs] = input_data
     get_DHSs[dhs_index] = dhs
@@ -110,12 +110,12 @@ test_labels = np.array(testing_labels_list)
 #model structure
 
 model = Sequential()
-model.add(Dense(300))
+#model.add(Dense(20))
 model.add(Dense(2))
 model.compile(optimizer='SGD', loss='mean_squared_error',metrics=['accuracy'])
 print("Model configured")
 
-model.fit(train_data, train_labels, epochs=150)
+model.fit(train_data, train_labels, epochs=15)
 
 test_loss, test_acc = model.evaluate(test_data,  test_labels, verbose=2)
 

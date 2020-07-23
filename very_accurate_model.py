@@ -11,7 +11,7 @@ import pickle
 import random
 import subprocess
 
-subprocess.call(["generated_shuffled_DHSs.sh"], shell=True)
+#subprocess.call(["generated_shuffled_DHSs.sh"], shell=True)
 #import dataset
 with open('./data/jar/DHSs_onehot.pickle', 'rb') as pickle_in:
     onehot_data = pickle.load(pickle_in)
@@ -42,10 +42,10 @@ with open('./data/jar/Sox2_count.pickle', 'rb') as pickle_in:
 with open('./data/jar/in_SE.pickle', 'rb') as pickle_in:
     in_SE_data = pickle.load(pickle_in)    
 
-sample_dataframe = pd.read_csv("data/mm10_data/DHSs/shuffled_DHSs.bed", header=None, index_col=False)
-DHSs_samples = []
-for row in sample_dataframe[0]:
-    DHSs_samples.append(row)
+#sample_dataframe = pd.read_csv("data/mm10_data/DHSs/shuffled_DHSs.bed", header=None, index_col=False)
+DHSs_samples = onehot_data.keys()
+#for row in sample_dataframe[0]:
+#    DHSs_samples.append(row)
 
 #flatten seq data sequence and extend list to have rest of data
 #extend lists, append single values
@@ -115,7 +115,7 @@ model.add(Dense(2))
 model.compile(optimizer='SGD', loss='mean_squared_error',metrics=['accuracy'])
 print("Model configured")
 
-model.fit(train_data, train_labels, epochs=150)
+model.fit(train_data, train_labels, epochs=5)
 
 test_loss, test_acc = model.evaluate(test_data,  test_labels, verbose=2)
 
