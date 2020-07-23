@@ -13,8 +13,6 @@ import subprocess
 
 subprocess.call(["generated_shuffled_DHSs.sh"], shell=True)
 #import dataset
-with open('./data/jar/DHSs_onehot.pickle', 'rb') as pickle_in:
-    onehot_data = pickle.load(pickle_in)
 with open('./data/jar/var_chart.pickle', 'rb') as pickle_in:
     var_chart_data = pickle.load(pickle_in)
 with open('./data/jar/gc.pickle', 'rb') as pickle_in:
@@ -53,8 +51,6 @@ dhs_index = 0
 for dhs in DHSs_samples:
     #if dhs in DHSs_samples:
     input_data = []
-    for row in onehot_data[dhs]:
-        input_data.extend(row)
     input_data.append(gc_data[dhs])
     input_data.append(length_data[dhs])
     input_data.append(ng_data[dhs])
@@ -108,7 +104,8 @@ test_labels = np.array(testing_labels_list)
 #model structure
 
 model = Sequential()
-model.add(Dense(300))
+model.add(Dense(16, activation='tanh'))
+model.add(Dense(16, activation='tanh'))
 model.add(Dense(4))
 model.compile(optimizer='SGD', loss='mean_squared_error',metrics=['accuracy'])
 print("Model configured")

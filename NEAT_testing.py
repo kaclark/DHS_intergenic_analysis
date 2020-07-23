@@ -1,15 +1,10 @@
-# TensorFlow and tf.keras
-import tensorflow as tf
-from tensorflow import keras
-from keras.models import Sequential
-from keras.layers import Dense, Dropout
-# Helper libraries
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import pickle
 import random
 import subprocess
+import neat
 
 subprocess.call(["generated_shuffled_DHSs.sh"], shell=True)
 #import dataset
@@ -100,27 +95,36 @@ for ind in testing_indexes:
     testing_data_list.append(matched_list[ind][0])
     testing_labels_list.append(matched_list[ind][1])
 
-train_data = np.array(training_data_list)
-train_labels = np.array(training_labels_list)
-test_data = np.array(testing_data_list)
-test_labels = np.array(testing_labels_list)
 
 #model structure
+number_generations = 100
+fitness_for_saving = 0.9
 
-model = Sequential()
-model.add(Dense(300))
-model.add(Dense(4))
-model.compile(optimizer='SGD', loss='mean_squared_error',metrics=['accuracy'])
-print("Model configured")
+def eval_genomes(genomes, config):
+    for genome_id, genome in genomes:
+        genome.fitness = 0
+        net = neat.nn.FeedForwardNetwork.create(genome,config)
+        for dhs in training_data_list:
+            ind = training_data_list.index(dhs)
+            label = training_labels_list[ind]
 
-model.fit(train_data, train_labels, epochs=150)
+            nnInput =  dhs
+            output = net.activate(nnInput)
 
-test_loss, test_acc = model.evaluate(test_data,  test_labels, verbose=2)
+            for index, prediction in enumerate(output):
+                if prediction < 0:
+                    prediction = 0
+                genome.fitness += (0.25/dhs_count) * (1 - abs(prediction - label[index]))
+        if genome.fitness > fitness_for_saving:
+            with open("./data/jar/best_model.pickle", 'wb') as pickle_out:
+                pickle.dump(net, pickle_out)
+            with open("./data/jar/testing_data.pickle", 'wb') as pickle_out:
+                pickle.dump([testing_data_list, testing_data_labels], pickle_out)
 
-print('\nTest accuracy:', test_acc)
-
-probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
-
-predictions = probability_model.predict(test_data)
+config = neat.Config(neat.DefaultGenome,neat.DefaultReproduction,neat.DefaultSpeciesSet,neat.DefaultStagnation, './data/DHS_NEAT')
+population = neat.Population(config)
+population.add_reporter(neat.StdOutReporter(False))
+stats = neat.StatisticsReporter()
+winner = population.run(eval_genomes, number_generations)
 
 
