@@ -2,7 +2,7 @@
 import tensorflow as tf
 from tensorflow import keras
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Dropout
 # Helper libraries
 import numpy as np
 import pandas as pd
@@ -11,7 +11,7 @@ import random
 import subprocess
 
 #reshuffle sampling of 8 cell only stage dhs sites
-subprocess.call(["truncate_eight_only.py"], shell=True)
+subprocess.call(["run_eight_shuffle.sh"], shell=True)
 #import dataset
 with open('./data/jar/stage_labels.pickle', 'rb') as pickle_in:
     stage_labels = pickle.load(pickle_in)
@@ -23,16 +23,23 @@ DHSs_samples = []
 for group in groups_trunc.keys():
     DHSs_samples.extend(groups_trunc[group])
 
+
 inputs = {}
-get_DHSs = {}
-dhs_index = 0
 for dhs in DHSs_samples:
     input_data = []
     input_data.append(ng_data[dhs])
     inputs[dhs] = input_data
-    get_DHSs[dhs_index] = dhs
-    dhs_index += 1
 matched_list = []
+
+ones = 0
+zeros = 0
+for dhs in DHSs_samples:
+    if stage_labels[dhs][0] == 1:
+        ones += 1
+    elif stage_labels[dhs][0] == 0:
+        zeros += 1
+total = ones + zeros
+percentage_zero = zeros/total
 
 # group dhs with its label
 for dhs in DHSs_samples:
@@ -71,19 +78,31 @@ test_labels = np.array(testing_labels_list)
 #model structure
 
 model = Sequential()
-model.add(Dense(1, activation='relu'))
+model.add(Dense(5, activation='tanh'))
+model.add(Dense(10, activation='softmax'))
+model.add(Dense(5, activation='relu'))
 model.add(Dense(2))
-model.compile(optimizer='SGD', loss='mean_squared_error',metrics=['accuracy'])
+model.compile(optimizer='adam', loss='BinaryCrossentropy',metrics=['binary_accuracy'])
 
 model.fit(train_data, train_labels, epochs=15)
 
 test_loss, test_acc = model.evaluate(test_data,  test_labels, verbose=2)
 
 print('\nTest accuracy:', test_acc)
-
+print('Percentage Non-Stage-Specific: ' + str(percentage_zero))
 probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 
 predictions = probability_model.predict(test_data)
-for val in model.weights:
-    print(val)
-
+for index, val in enumerate(predictions):
+    pred_perc = max(list(val))
+    list_val = list(val)
+    pred = [0,0]
+    if list_val.index(pred_perc) == 0:
+        pred = [1,0]
+    else:
+        pred = [0,1]
+    real = testing_labels_list[index]
+    correct = False
+    if pred == real:
+        correct = True
+    print("predicition list: " + str(val) + "  Prediction: " + str(pred) + " Label:" + str(real) +  " " + str(correct))

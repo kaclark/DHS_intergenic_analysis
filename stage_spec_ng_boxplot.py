@@ -16,7 +16,9 @@ for dhs in ng_data.keys():
         ss.append(ng_data[dhs])
     elif stage_labels[dhs] == 0:
         non_ss.append(ng_data[dhs])
-
+print(len(ss))
+print(len(non_ss))
+"""
 print(stats.kruskal(ss, non_ss))
 w, p = mannwhitneyu(ss, non_ss)
 print("Rank: " + str(w))
@@ -28,7 +30,7 @@ ax.set_title("Nearest gene distance Stage Specificity")
 fig = plt.boxplot(boxplot_data, showfliers=False)
 ax.set_xticklabels(labels, fontsize=8)
 plt.show()
-
+"""
 
 
 

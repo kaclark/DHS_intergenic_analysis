@@ -11,7 +11,7 @@ import pickle
 import random
 import subprocess
 
-#subprocess.call(["generated_shuffled_DHSs.sh"], shell=True)
+subprocess.call(["generated_shuffled_DHSs.sh"], shell=True)
 #import dataset
 with open('./data/jar/DHSs_onehot.pickle', 'rb') as pickle_in:
     onehot_data = pickle.load(pickle_in)
@@ -42,16 +42,22 @@ with open('./data/jar/Sox2_count.pickle', 'rb') as pickle_in:
 with open('./data/jar/in_SE.pickle', 'rb') as pickle_in:
     in_SE_data = pickle.load(pickle_in)    
 
-#sample_dataframe = pd.read_csv("data/mm10_data/DHSs/shuffled_DHSs.bed", header=None, index_col=False)
-DHSs_samples = onehot_data.keys()
-#for row in sample_dataframe[0]:
-#    DHSs_samples.append(row)
-
+sample_dataframe = pd.read_csv("data/mm10_data/DHSs/shuffled_DHSs.bed", header=None, index_col=False)
+DHSs_samples = []
+for row in sample_dataframe[0]:
+    DHSs_samples.append(row)
+ones = 0
+zeros = 0
+for dhs in DHSs_samples:
+    if stage_labels[dhs][0] == 1:
+        ones += 1
+    elif stage_labels[dhs][0] == 0:
+        zeros += 1
+total = ones + zeros
+percentage_zero = zeros/total
 #flatten seq data sequence and extend list to have rest of data
 #extend lists, append single values
 inputs = {}
-get_DHSs = {}
-dhs_index = 0
 for dhs in DHSs_samples:
     #if dhs in DHSs_samples:
     input_data = []
@@ -68,8 +74,6 @@ for dhs in DHSs_samples:
     input_data.append(in_SE_data[dhs])
     #add new data above this
     inputs[dhs] = input_data
-    get_DHSs[dhs_index] = dhs
-    dhs_index += 1
 matched_list = []
 
 # group dhs with its label
@@ -110,19 +114,32 @@ test_labels = np.array(testing_labels_list)
 #model structure
 
 model = Sequential()
-#model.add(Dense(20))
+model.add(Dense(20, activation='tanh'))
+model.add(Dense(10, activation='relu'))
 model.add(Dense(2))
-model.compile(optimizer='SGD', loss='mean_squared_error',metrics=['accuracy'])
-print("Model configured")
+model.compile(optimizer='adam', loss='BinaryCrossentropy',metrics=["binary_accuracy"])
 
-model.fit(train_data, train_labels, epochs=15)
+model.fit(train_data, train_labels, epochs=100)
 
 test_loss, test_acc = model.evaluate(test_data,  test_labels, verbose=2)
 
 print('\nTest accuracy:', test_acc)
-
+print('Percentage Non-Stage-Specific: ' + str(percentage_zero))
 probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 
 predictions = probability_model.predict(test_data)
-
+for index, val in enumerate(predictions):
+    pred_perc = max(list(val))
+    list_val = list(val)
+    pred = [0,0]
+    if list_val.index(pred_perc) == 0:
+        pred = [1,0]
+    else:
+        pred = [0,1]
+    real = testing_labels_list[index]
+    correct = False
+    if pred == real:
+        correct = True
+    print("predicition list: " + str(val) + "  Prediction: " + str(pred) + " Label:" + str(real) +  " " + str(correct))
+        
 

@@ -12,9 +12,9 @@ for row in stage_spec_dataframe[0]:
 stage_spec_labels_dict = {}
 for dhs in all_DHSs:
     if dhs in stage_spec:
-        stage_spec_labels_dict[dhs] = 1
+        stage_spec_labels_dict[dhs] = [1,0]
     else:
-        stage_spec_labels_dict[dhs] = 0
+        stage_spec_labels_dict[dhs] = [0,1]
 print(len(stage_spec_labels_dict.keys()))
 with open('./data/jar/stage_labels.pickle', 'wb') as pickle_out:
     pickle.dump(stage_spec_labels_dict, pickle_out)

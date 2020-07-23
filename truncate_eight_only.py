@@ -1,7 +1,7 @@
 import pickle
 import random
 
-with open("./data/groups.pickle", "rb") as pickle_in:
+with open("./data/jar/groups.pickle", "rb") as pickle_in:
     groups = pickle.load(pickle_in)
 
 #number of 8 only intergenic DHS sites to retain
@@ -21,7 +21,7 @@ for ind in indexes:
 
 groups["in_8_only"] = retained
 
-with open('./data/groups_trunc.pickle', 'wb') as pickle_out:
+with open('./data/jar/groups_trunc.pickle', 'wb') as pickle_out:
     pickle.dump(groups, pickle_out)
 
 
