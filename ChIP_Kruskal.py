@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 #load DHSs by group from pickle file
 #dictionary group[group_id] = DHSs_list
-with open("./data/groups.pickle", "rb") as pickle_in:
+with open("./data/jar/groups.pickle", "rb") as pickle_in:
     groups = pickle.load(pickle_in)
 
 #ChIP_data_antigens
@@ -72,6 +72,6 @@ for antibody in ChIP_data:
         labels.append(label)
     ax = plt.axes()
     ax.set_title(antibody + " counts of Variability Groupings")
-    fig = plt.boxplot(group_data)
+    fig = plt.boxplot(group_data, notch = True)
     ax.set_xticklabels(labels, fontsize=8, rotation=90)
     plt.show()

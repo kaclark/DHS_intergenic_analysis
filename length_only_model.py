@@ -13,8 +13,12 @@ import subprocess
 
 subprocess.call(["generated_shuffled_DHSs.sh"], shell=True)
 #import dataset
+with open('./data/jar/DHSs_onehot.pickle', 'rb') as pickle_in:
+    onehot_data = pickle.load(pickle_in)
 with open('./data/jar/var_chart.pickle', 'rb') as pickle_in:
     var_chart_data = pickle.load(pickle_in)
+with open('./data/jar/stage_labels.pickle', 'rb') as pickle_in:
+    stage_labels = pickle.load(pickle_in)
 with open('./data/jar/gc.pickle', 'rb') as pickle_in:
     gc_data = pickle.load(pickle_in)
 with open('./data/jar/lengths.pickle', 'rb') as pickle_in:
@@ -23,7 +27,7 @@ with open('./data/jar/get_group_from_dhs.pickle', 'rb') as pickle_in:
     groups_by_DHS = pickle.load(pickle_in)
 with open('./data/jar/groups_trunc.pickle', 'rb') as pickle_in:
     groups_trunc = pickle.load(pickle_in)
-with open('./data/jar/ng.pickle', 'rb') as pickle_in:
+with open('./data/jar/ng_std.pickle', 'rb') as pickle_in:
     ng_data = pickle.load(pickle_in)
 with open('./data/jar/H3K27ac_count.pickle', 'rb') as pickle_in:
     H3K27ac_count_data = pickle.load(pickle_in)
@@ -51,13 +55,15 @@ dhs_index = 0
 for dhs in DHSs_samples:
     #if dhs in DHSs_samples:
     input_data = []
-    input_data.append(gc_data[dhs])
+    #for row in onehot_data[dhs]:
+    #    input_data.extend(row)
+    #input_data.append(gc_data[dhs])
     input_data.append(length_data[dhs])
-    input_data.append(ng_data[dhs])
-    input_data.append(H3K27ac_count_data[dhs])
-    input_data.append(H3K4me3_count_data[dhs])
+    #input_data.append(ng_data[dhs])
+    #input_data.append(H3K27ac_count_data[dhs])
+    #input_data.append(H3K4me3_count_data[dhs])
     #input_data.append(Nanog_count_data[dhs])
-    input_data.append(Oct4_count_data[dhs])
+    #input_data.append(Oct4_count_data[dhs])
     #input_data.append(Sox2_count_data[dhs])
     #input_data.append(in_SE_data[dhs])
     #add new data above this
@@ -69,7 +75,7 @@ matched_list = []
 # group dhs with its label
 for dhs in DHSs_samples:
     matched_list.append([inputs[dhs], var_chart_data[dhs]])
-
+    #matched_list.append([inputs[dhs], stage_labels[dhs]])
 #generate random unique indexes to pull out data for testing
 testing_indexes = []
 tmp_indexes = []
@@ -106,10 +112,10 @@ test_labels = np.array(testing_labels_list)
 model = Sequential()
 model.add(Dense(10, activation='relu'))
 model.add(Dense(4))
-model.compile(optimizer='SGD', loss='mean_squared_error', metrics=['accuracy'])
+model.compile(optimizer='SGD', loss='mean_squared_error',metrics=['accuracy'])
 print("Model configured")
 
-model.fit(train_data, train_labels, epochs=150)
+model.fit(train_data, train_labels, epochs=10)
 
 test_loss, test_acc = model.evaluate(test_data,  test_labels, verbose=2)
 
